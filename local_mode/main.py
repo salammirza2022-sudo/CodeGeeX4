@@ -42,7 +42,11 @@ async def chat(request: ChatCompletionRequest):
         else:
             return JSONResponse(chat_with_codegeex(request))
     except Exception as e:
-        return JSONResponse(e, status_code=500)
+        # JSONResponse expects a serializable content. Returning the exception
+        # object directly results in a "TypeError: Object of type ... is not JSON serializable".
+        # Convert the exception to a string so clients receive a meaningful
+        # error message instead of a server-side serialization failure.
+        return JSONResponse({"error": str(e)}, status_code=500)
 
 
 if __name__ == "__main__":
